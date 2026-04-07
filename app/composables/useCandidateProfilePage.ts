@@ -97,6 +97,13 @@ export interface CandidateProfilePageListResponse {
   totalPages: number
 }
 
+// Tambahkan interface ApiResponse
+interface ApiResponse<T> {
+  status: string
+  message: string
+  data: T
+}
+
 export const useCandidateProfilePage = () => {
   const { accessToken } = useAuth()
   const runtimeConfig = useRuntimeConfig()
@@ -207,17 +214,14 @@ export const useCandidateProfilePage = () => {
       
       console.log('📦 Raw response from API:', response)
       
-      // Response is directly an array of profiles
       if (Array.isArray(response)) {
         return response
       }
       
-      // Response has data property that is an array
       if (response?.data && Array.isArray(response.data)) {
         return response.data
       }
       
-      // Response has pages property
       if (response?.pages && Array.isArray(response.pages)) {
         return response.pages
       }
@@ -306,29 +310,53 @@ export const useCandidateProfilePage = () => {
     }
   }
 
-  // Validate candidate profile page (public endpoint)
-  const validateCandidateProfilePage = async (data: ValidateCandidateProfilePageRequest): Promise<ValidationResponse> => {
+  // Validate candidate profile page (PUBLIC - no auth)
+  const validateCandidateProfilePage = async (data: { 
+    urlIdentifier: string; 
+    passcode: string 
+  }): Promise<{ valid: boolean; profilePage?: CandidateProfilePage; message: string }> => {
     try {
-      const headers = { 'Accept': 'application/json' }
+      // Public endpoint, no auth needed
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+      
       const url = `${baseURL}/candidate-profile-pages/validate`
       
-      console.log('🔍 Validating with URL:', url)
-      console.log('🔍 Data:', data)
+      console.log('Validating at:', url)
+      console.log('Data:', data)
       
-      const response = await $fetch<any>(url, {
+      const response = await $fetch<ValidationResponse>(url, {
         method: 'POST',
         headers,
         body: data
       })
       
-      console.log('📦 Validation response:', response)
+      console.log('API Response:', response)
       
-      return handleResponse<ValidationResponse>(response)
-    } catch (error: any) {
-      console.error('Error validating candidate profile page:', error)
+      if (response.valid && response.data) {
+        return {
+          valid: true,
+          profilePage: response.data as CandidateProfilePage,
+          message: response.message || 'Validation successful'
+        }
+      }
+      
       return {
         valid: false,
-        message: error?.message || 'Validation failed'
+        message: response.message || 'Invalid passcode'
+      }
+      
+    } catch (error: any) {
+      console.error('Error validating candidate profile page:', error)
+      
+      if (error.data?.message) {
+        return { valid: false, message: error.data.message }
+      }
+      
+      return { 
+        valid: false, 
+        message: error.message || 'Failed to validate profile page' 
       }
     }
   }

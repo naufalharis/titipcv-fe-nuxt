@@ -61,6 +61,19 @@ export const useUsers = () => {
     }
   }
 
+  const getUserById = async (id: string): Promise<User> => {
+    try {
+      const headers = getHeaders()
+      const response = await $fetch<any>(`${baseURL}/users/${id}`, {
+        headers
+      })
+      return response?.data || response
+    } catch (error) {
+      console.error('Error fetching user:', error)
+      throw error
+    }
+  }
+
   const createUser = async (userData: Partial<User>) : Promise<any> => {
     try {
       const headers = getHeaders()
@@ -138,6 +151,7 @@ export const useUsers = () => {
     getUsers,
     getDeletedUsers,
     searchUsers,
+    getUserById,
     createUser,
     updateUser,
     deleteUser,

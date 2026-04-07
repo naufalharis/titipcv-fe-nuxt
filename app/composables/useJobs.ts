@@ -1,5 +1,6 @@
 // composables/useJobs.ts
 import { useAuth } from './useAuth'
+import type { CreateScreeningQuestionRequest } from './useScreeningQuestions'
 
 export interface Job {
   id: string
@@ -44,7 +45,6 @@ export interface Job {
   
   // Relations
   jobApplications?: any[]
-  screeningQuestions?: ScreeningQuestion[]
 }
 
 export interface CompanyResponse {
@@ -91,26 +91,6 @@ export interface CreatorResponse {
   id: string
   name: string
   email: string
-}
-
-export interface ScreeningQuestion {
-  id: string
-  jobId: string
-  question: string
-  answerType: string
-  options?: string[]
-  isRequired: boolean
-  order: number
-  createdAt: number
-  updatedAt: number
-}
-
-export interface CreateScreeningQuestionRequest {
-  question: string
-  answerType: string
-  options?: string[]
-  isRequired: boolean
-  order?: number
 }
 
 export interface CreateJobRequest {
@@ -554,38 +534,26 @@ export const useJobs = () => {
     }
   }
 
-  // ============= GET JOBS BY COMPANY (Fixed - with manual filter) =============
+  // ============= GET JOBS BY COMPANY =============
   const getJobsByCompany = async (companyId: string, params?: {
     page?: number
     limit?: number
     status?: string
   }): Promise<JobListResponse> => {
     try {
-      console.log('🔍 GET JOBS BY COMPANY - Fetching all jobs first...')
-      
-      // Ambil semua jobs terlebih dahulu
       const allJobs = await getAllJobs()
       
-      console.log('📊 Total jobs from API:', allJobs.length)
-      
-      // Filter jobs untuk company ini
       let filteredJobs = allJobs.filter((job: Job) => job.companyId === companyId)
-      console.log('📊 Jobs for company:', filteredJobs.length)
       
-      // Filter by status if needed
       if (params?.status) {
         filteredJobs = filteredJobs.filter((job: Job) => job.status === params.status)
-        console.log('📊 Jobs after status filter:', filteredJobs.length)
       }
       
-      // Apply pagination
       const page = params?.page || 1
       const pageSize = params?.limit || 10
       const start = (page - 1) * pageSize
       const end = start + pageSize
       const paginatedJobs = filteredJobs.slice(start, end)
-      
-      console.log('📊 Paginated jobs:', paginatedJobs.length)
       
       return {
         jobs: paginatedJobs,
@@ -595,26 +563,18 @@ export const useJobs = () => {
         totalPages: Math.ceil(filteredJobs.length / pageSize)
       }
     } catch (error: any) {
-      console.error('❌ Error fetching company jobs:', error)
+      console.error('Error fetching company jobs:', error)
       return { jobs: [], total: 0, page: 1, pageSize: 10, totalPages: 0 }
     }
   }
 
-  // ============= GET COMPANY JOB STATS (Fixed) =============
+  // ============= GET COMPANY JOB STATS =============
   const getCompanyJobStats = async (companyId: string): Promise<JobStats> => {
     try {
-      console.log('🔍 GET COMPANY JOB STATS - Fetching all jobs first...')
-      
-      // Ambil semua jobs
       const allJobs = await getAllJobs()
-      
-      // Filter jobs untuk company ini
       const companyJobs = allJobs.filter((job: Job) => job.companyId === companyId)
       
-      console.log('📊 Company jobs count:', companyJobs.length)
-      
-      // Hitung stats
-      const stats = {
+      return {
         total: companyJobs.length,
         active: companyJobs.filter((job: Job) => job.status === 'active').length,
         pending: companyJobs.filter((job: Job) => job.status === 'pending').length,
@@ -622,12 +582,8 @@ export const useJobs = () => {
         closed: companyJobs.filter((job: Job) => job.status === 'closed').length,
         rejected: companyJobs.filter((job: Job) => job.status === 'rejected').length
       }
-      
-      console.log('📊 Calculated stats:', stats)
-      
-      return stats
     } catch (error: any) {
-      console.error('❌ Error calculating company stats:', error)
+      console.error('Error calculating company stats:', error)
       return {
         total: 0,
         active: 0,
@@ -824,109 +780,6 @@ export const useJobs = () => {
     }
   }
 
-  // ============= SCREENING QUESTIONS =============
-  const listScreeningQuestions = async (jobId: string): Promise<ScreeningQuestion[]> => {
-    try {
-      const headers = getHeaders()
-      const url = `${baseURL}/jobs/${jobId}/screening-questions`
-      
-      const response = await $fetch<any>(url, { headers })
-      
-      if (response?.data && Array.isArray(response.data)) {
-        return response.data
-      } else if (Array.isArray(response)) {
-        return response
-      }
-      return []
-    } catch (error) {
-      console.error('Error fetching screening questions:', error)
-      return []
-    }
-  }
-
-  const getScreeningQuestion = async (jobId: string, questionId: string): Promise<ScreeningQuestion> => {
-    try {
-      const headers = getHeaders()
-      const url = `${baseURL}/jobs/${jobId}/screening-questions/${questionId}`
-      
-      const response = await $fetch<any>(url, { headers })
-      
-      return handleResponse<ScreeningQuestion>(response)
-    } catch (error) {
-      console.error('Error fetching screening question:', error)
-      throw error
-    }
-  }
-
-  const createScreeningQuestion = async (jobId: string, data: CreateScreeningQuestionRequest): Promise<ScreeningQuestion> => {
-    try {
-      const headers = getHeaders()
-      const url = `${baseURL}/jobs/${jobId}/screening-questions`
-      
-      const response = await $fetch<any>(url, {
-        method: 'POST',
-        headers,
-        body: data
-      })
-      
-      return handleResponse<ScreeningQuestion>(response)
-    } catch (error) {
-      console.error('Error creating screening question:', error)
-      throw error
-    }
-  }
-
-  const updateScreeningQuestion = async (jobId: string, questionId: string, data: Partial<CreateScreeningQuestionRequest>): Promise<ScreeningQuestion> => {
-    try {
-      const headers = getHeaders()
-      const url = `${baseURL}/jobs/${jobId}/screening-questions/${questionId}`
-      
-      const response = await $fetch<any>(url, {
-        method: 'PATCH',
-        headers,
-        body: data
-      })
-      
-      return handleResponse<ScreeningQuestion>(response)
-    } catch (error) {
-      console.error('Error updating screening question:', error)
-      throw error
-    }
-  }
-
-  const deleteScreeningQuestion = async (jobId: string, questionId: string): Promise<void> => {
-    try {
-      const headers = getHeaders()
-      const url = `${baseURL}/jobs/${jobId}/screening-questions/${questionId}`
-      
-      await $fetch(url, {
-        method: 'DELETE',
-        headers
-      })
-    } catch (error) {
-      console.error('Error deleting screening question:', error)
-      throw error
-    }
-  }
-
-  const reorderScreeningQuestions = async (jobId: string, questionIds: string[]): Promise<ScreeningQuestion[]> => {
-    try {
-      const headers = getHeaders()
-      const url = `${baseURL}/jobs/${jobId}/screening-questions/reorder`
-      
-      const response = await $fetch<any>(url, {
-        method: 'PATCH',
-        headers,
-        body: { questionIds }
-      })
-      
-      return handleResponse<ScreeningQuestion[]>(response)
-    } catch (error) {
-      console.error('Error reordering screening questions:', error)
-      throw error
-    }
-  }
-
   return {
     // Master data
     getJobCategories,
@@ -960,14 +813,6 @@ export const useJobs = () => {
     getRejectedJobs,
     
     // SuperAdmin routes
-    reindexJobs,
-    
-    // Screening questions
-    listScreeningQuestions,
-    getScreeningQuestion,
-    createScreeningQuestion,
-    updateScreeningQuestion,
-    deleteScreeningQuestion,
-    reorderScreeningQuestions
+    reindexJobs
   }
 }

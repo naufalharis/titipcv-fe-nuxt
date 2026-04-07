@@ -18,9 +18,9 @@ export default defineNuxtRouteMiddleware((to) => {
     '/', 
     '/about', 
     '/contact',
-    '/login',        // Tambahkan ini
-    '/register',     // Tambahkan ini
-    '/forgot-password' // Tambahkan ini
+    '/login',
+    '/register',
+    '/forgot-password' 
   ]
   
   // Cek apakah halaman termasuk dalam public prefixes

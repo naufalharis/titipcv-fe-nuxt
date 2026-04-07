@@ -68,6 +68,25 @@ export interface ApplicationStats {
   rejected: number
 }
 
+export interface CompanyStats {
+  totalApplications: number
+  [key: string]: any
+}
+
+export interface AcceptedRejectedStats {
+  accepted: number
+  rejected: number
+  [key: string]: any
+}
+
+export interface ProcessingStats {
+  pending: number
+  reviewed: number
+  shortlisted: number
+  interviewed: number
+  [key: string]: any
+}
+
 export interface ApplicationListResponse {
   data: JobApplication[]
   pagination: {
@@ -79,7 +98,7 @@ export interface ApplicationListResponse {
 }
 
 export const useApplications = () => {
-  const { accessToken, user } = useAuth()
+  const { accessToken, user, refreshAccessToken, logout } = useAuth()
   const runtimeConfig = useRuntimeConfig()
   const baseURL = runtimeConfig.public.apiBaseUrl || 'http://localhost:3335/api/v1'
 
@@ -107,22 +126,26 @@ export const useApplications = () => {
     userId?: string
     status?: string
   }): Promise<ApplicationListResponse> => {
-    try {
+    const doFetch = async () => {
       const headers = getHeaders()
       const queryParams = new URLSearchParams()
-      
+
       if (params?.page) queryParams.append('page', params.page.toString())
       if (params?.pageSize) queryParams.append('pageSize', params.pageSize.toString())
       if (params?.jobId) queryParams.append('jobId', params.jobId)
       if (params?.userId) queryParams.append('userId', params.userId)
       if (params?.status) queryParams.append('status', params.status)
-      
-      const url = queryParams.toString() 
+
+      const url = queryParams.toString()
         ? `${baseURL}/job-applications?${queryParams.toString()}`
         : `${baseURL}/job-applications`
-      
-      const response = await $fetch<any>(url, { headers })
-      
+
+      return await $fetch<any>(url, { headers })
+    }
+
+    try {
+      const response = await doFetch()
+
       if (response?.data) {
         return {
           data: response.data,
@@ -134,9 +157,29 @@ export const useApplications = () => {
           }
         }
       }
-      
+
       return { data: [], pagination: { page: 1, pageSize: 10, total: 0, totalPages: 0 } }
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.status === 401) {
+        const tokenRefreshed = await refreshAccessToken()
+        if (tokenRefreshed) {
+          const response = await doFetch()
+          if (response?.data) {
+            return {
+              data: response.data,
+              pagination: response.pagination || {
+                page: params?.page || 1,
+                pageSize: params?.pageSize || 10,
+                total: response.data.length,
+                totalPages: 1
+              }
+            }
+          }
+          return { data: [], pagination: { page: 1, pageSize: 10, total: 0, totalPages: 0 } }
+        }
+        await logout()
+      }
+
       console.error('Error fetching applications:', error)
       return { data: [], pagination: { page: 1, pageSize: 10, total: 0, totalPages: 0 } }
     }
@@ -221,18 +264,33 @@ export const useApplications = () => {
 
   // Update application status
   const updateApplicationStatus = async (id: string, status: string): Promise<JobApplication> => {
-    try {
+    const tryUpdate = async () => {
       const headers = getHeaders()
       const url = `${baseURL}/job-applications/${id}/status`
-      
+
       const response = await $fetch<any>(url, {
         method: 'PATCH',
         headers,
         body: { status }
       })
-      
+
       return response?.data || response
-    } catch (error) {
+    }
+
+    try {
+      return await tryUpdate()
+    } catch (error: any) {
+      if (error?.status === 401) {
+        console.warn('Unauthorized while updating application status, trying refresh token...')
+        const refreshed = await refreshAccessToken()
+        if (refreshed) {
+          return await tryUpdate()
+        }
+
+        await logout()
+        throw new Error('Authentication expired, please log in again.')
+      }
+
       console.error('Error updating application status:', error)
       throw error
     }
@@ -388,6 +446,91 @@ export const useApplications = () => {
     }
   }
 
+  // Get company stats
+  const getCompanyStats = async (companyId: string): Promise<CompanyStats> => {
+    try {
+      const headers = getHeaders()
+      const url = `${baseURL}/job-applications/company/${companyId}/stats`
+      
+      const response = await $fetch<any>(url, { headers })
+      
+      return {
+        totalApplications: response?.totalApplications || 0
+      }
+    } catch (error) {
+      console.error('Error fetching company stats:', error)
+      return { totalApplications: 0 }
+    }
+  }
+
+  // Get company accepted and rejected stats
+  const getCompanyAcceptedRejectedStats = async (companyId: string): Promise<AcceptedRejectedStats> => {
+    try {
+      const headers = getHeaders()
+      const url = `${baseURL}/job-applications/company/${companyId}/accepted-rejected-stats`
+      
+      const response = await $fetch<any>(url, { headers })
+      
+      return {
+        accepted: response?.accepted || 0,
+        rejected: response?.rejected || 0
+      }
+    } catch (error) {
+      console.error('Error fetching company accepted/rejected stats:', error)
+      return { accepted: 0, rejected: 0 }
+    }
+  }
+
+  // Get company processing stats
+  const getCompanyProcessingStats = async (companyId: string): Promise<ProcessingStats> => {
+    try {
+      const headers = getHeaders()
+      const url = `${baseURL}/job-applications/company/${companyId}/processing-stats`
+      
+      const response = await $fetch<any>(url, { headers })
+      
+      return {
+        pending: response?.pending || 0,
+        reviewed: response?.reviewed || 0,
+        shortlisted: response?.shortlisted || 0,
+        interviewed: response?.interviewed || 0
+      }
+    } catch (error) {
+      console.error('Error fetching company processing stats:', error)
+      return { pending: 0, reviewed: 0, shortlisted: 0, interviewed: 0 }
+    }
+  }
+
+  // Get status color
+  const getStatusColor = (status: string): string => {
+    const statusColorMap: Record<string, string> = {
+      'pending': 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200',
+      'reviewed': 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200',
+      'shortlisted': 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200',
+      'interviewed': 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200',
+      'accepted': 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200',
+      'hired': 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200',
+      'offered': 'bg-lime-100 dark:bg-lime-900/30 text-lime-800 dark:text-lime-200',
+      'rejected': 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200'
+    }
+    return statusColorMap[status?.toLowerCase()] || 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+  }
+
+  // Get status label
+  const getStatusLabel = (status: string): string => {
+    const statusLabelMap: Record<string, string> = {
+      'pending': 'Pending',
+      'reviewed': 'Reviewed',
+      'shortlisted': 'Shortlisted',
+      'interviewed': 'Interviewed',
+      'accepted': 'Accepted',
+      'hired': 'Hired',
+      'offered': 'Offered',
+      'rejected': 'Rejected'
+    }
+    return statusLabelMap[status?.toLowerCase()] || status || 'Unknown'
+  }
+
   return {
     getAllApplications,
     getMyApplications,
@@ -397,6 +540,11 @@ export const useApplications = () => {
     getScreeningAnswers,
     getScreeningScore,
     getApplicationStats,
-    getApplicationStatuses
+    getApplicationStatuses,
+    getCompanyStats,
+    getCompanyAcceptedRejectedStats,
+    getCompanyProcessingStats,
+    getStatusColor,
+    getStatusLabel
   }
 }

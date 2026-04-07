@@ -31,32 +31,18 @@
 
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- Active Jobs Card -->
+        <!-- Total Applications Card -->
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 hover:shadow-md transition-shadow">
           <div class="flex items-center justify-between mb-2">
-            <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400">Active Jobs</h3>
-            <div class="p-2 bg-primary-100 dark:bg-primary-900/40 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </div>
-          </div>
-          <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ stats.activeJobs }} / {{ stats.totalJobs }}</p>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ ((stats.activeJobs / stats.totalJobs) * 100).toFixed(1) || 0 }}% of total jobs</p>
-        </div>
-
-        <!-- Total Applicants Card -->
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 hover:shadow-md transition-shadow">
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Applicants</h3>
+            <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Applications</h3>
             <div class="p-2 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
             </div>
           </div>
-          <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ stats.totalApplicants }}</p>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Total applicants across all jobs</p>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ stats.totalApplications }}</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">received across all jobs</p>
         </div>
 
         <!-- Processing Applications Card -->
@@ -69,11 +55,17 @@
               </svg>
             </div>
           </div>
-          <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ stats.processingApplications }}</p>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Awaiting review</p>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ stats.processingApplications }} / {{ stats.totalApplications }}</p>
+          <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mt-2">
+            <div 
+              class="bg-amber-500 h-1.5 rounded-full" 
+              :style="{ width: `${(stats.processingApplications / (stats.totalApplications || 1)) * 100}%` }"
+            ></div>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">{{ ((stats.processingApplications / (stats.totalApplications || 1)) * 100).toFixed(1) || 0 }}% awaiting review</p>
         </div>
 
-        <!-- Accepted/Rejected Card -->
+        <!-- Accepted / Rejected Card -->
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 hover:shadow-md transition-shadow">
           <div class="flex items-center justify-between mb-2">
             <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400">Accepted / Rejected</h3>
@@ -87,9 +79,24 @@
           <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mt-2">
             <div 
               class="bg-emerald-500 h-1.5 rounded-full" 
-              :style="{ width: `${(stats.acceptedApplications / (stats.acceptedApplications + stats.rejectedApplications || 1)) * 100}%` }"
+              :style="{ width: `${(stats.acceptedApplications / ((stats.acceptedApplications + stats.rejectedApplications) || 1)) * 100}%` }"
             ></div>
           </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">{{ ((stats.acceptedApplications / ((stats.acceptedApplications + stats.rejectedApplications) || 1)) * 100).toFixed(1) || 0 }}% acceptance rate</p>
+        </div>
+
+        <!-- Active Jobs Card -->
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400">Active Jobs</h3>
+            <div class="p-2 bg-primary-100 dark:bg-primary-900/40 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+          </div>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ stats.activeJobs }} / {{ stats.totalJobs }}</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ ((stats.activeJobs / (stats.totalJobs || 1)) * 100).toFixed(1) || 0 }}% of total jobs</p>
         </div>
       </div>
 
@@ -113,16 +120,15 @@
                 <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Job Position</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Applied Date</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Action</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
-              <tr v-for="(application, index) in recentApplications" :key="index" class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+              <tr v-for="(application, index) in recentApplications" :key="application.id || index" class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
                     <div class="flex-shrink-0 h-8 w-8 bg-gradient-to-br from-primary-100 to-primary-50 dark:from-primary-900/40 dark:to-primary-800/40 rounded-full flex items-center justify-center">
                       <span class="text-primary-600 dark:text-primary-400 font-medium text-sm">
-                        {{ application.applicantName.charAt(0) }}
+                        {{ getInitials(application.applicantName) }}
                       </span>
                     </div>
                     <div class="ml-3">
@@ -144,14 +150,6 @@
                   >
                     {{ getStatusLabel(application.status) }}
                   </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button 
-                    @click="viewApplication(application.id)"
-                    class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300"
-                  >
-                    View
-                  </button>
                 </td>
               </tr>
             </tbody>
@@ -261,19 +259,17 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuth } from '~/composables/useAuth'
 import { useJobs, type JobStats } from '~/composables/useJobs'
-import { useApplications, type CompanyStats, type AcceptedRejectedStats, type ProcessingStats } from '~/composables/useApplications'
+import { useApplications, type JobApplication } from '~/composables/useApplications'
 
 const { user, logout: authLogout } = useAuth()
 const router = useRouter()
 const { getJobStats, getJobsByCompany } = useJobs()
 const { 
-  getCompanyStats, 
-  getCompanyAcceptedRejectedStats, 
-  getCompanyProcessingStats,
   getAllApplications,
   getStatusColor,
-  getStatusLabel 
+  getStatusLabel
 } = useApplications()
 
 // Check authentication and role on mount
@@ -297,12 +293,6 @@ watch(() => user.value, (newUser) => {
   }
 }, { immediate: true })
 
-// Logout function
-const logout = async () => {
-  await authLogout()
-  router.push('/auth/login')
-}
-
 // Recruiter info
 const recruiterName = ref<string>('Nopalrecruiter')
 
@@ -310,7 +300,7 @@ const recruiterName = ref<string>('Nopalrecruiter')
 const stats = ref({
   activeJobs: 0,
   totalJobs: 0,
-  totalApplicants: 0,
+  totalApplications: 0,
   processingApplications: 0,
   acceptedApplications: 0,
   rejectedApplications: 0
@@ -331,9 +321,34 @@ const getStatusColorClass = (status: string): string => {
   return getStatusColor(status)
 }
 
+// Get initials from name or userId
+const getInitials = (name: string): string => {
+  if (!name || name === 'Unknown Candidate') return '?'
+  return name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+}
+
 // View application detail
 const viewApplication = (id: string) => {
   router.push(`/recruiter/applications/${id}`)
+}
+
+// Format time ago
+const formatTimeAgo = (timestamp: number): string => {
+  if (!timestamp) return 'N/A'
+  const now = Math.floor(Date.now() / 1000)
+  const diff = now - timestamp
+  
+  if (diff < 60) return 'just now'
+  if (diff < 3600) return `${Math.floor(diff / 60)} mins ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`
+  if (diff < 604800) return `${Math.floor(diff / 86400)} days ago`
+  return new Date(timestamp * 1000).toLocaleDateString()
+}
+
+// Format date from timestamp
+const formatDate = (timestamp: number): string => {
+  if (!timestamp) return 'N/A'
+  return new Date(timestamp * 1000).toLocaleDateString()
 }
 
 // Fetch job stats
@@ -364,88 +379,125 @@ const fetchJobStats = async (): Promise<void> => {
   }
 }
 
-// Fetch application stats
-const fetchApplicationStats = async (): Promise<void> => {
+// Fetch and calculate all stats from applications data
+const fetchAndCalculateStats = async (): Promise<void> => {
   try {
-    if (!user.value?.companyId) {
-      console.warn('No companyId found for user')
-      return
-    }
-    
-    const companyStats: CompanyStats = await getCompanyStats(user.value.companyId)
-    const acceptedRejectedStats: AcceptedRejectedStats = await getCompanyAcceptedRejectedStats(user.value.companyId)
-    const processingStats: ProcessingStats = await getCompanyProcessingStats(user.value.companyId)
-    
-    const totalProcessing = 
-      (processingStats.pending || 0) + 
-      (processingStats.reviewed || 0) + 
-      (processingStats.shortlisted || 0) + 
-      (processingStats.interviewed || 0)
-    
-    stats.value = {
-      ...stats.value,
-      totalApplicants: companyStats.totalApplications || 0,
-      processingApplications: totalProcessing,
-      acceptedApplications: acceptedRejectedStats.accepted || 0,
-      rejectedApplications: acceptedRejectedStats.rejected || 0
-    }
-    
-  } catch (err) {
-    console.error('Error fetching application stats:', err)
-  }
-}
-
-// Fetch recent applications
-const fetchRecentApplications = async (): Promise<void> => {
-  try {
+    // Fetch all applications
     const response = await getAllApplications({ 
       page: 1, 
-      pageSize: 5 
+      pageSize: 100
     })
     
-    if (response?.data && response.data.length > 0) {
-      const companyApplications = response.data.filter((app: any) => 
-        app.job?.companyId === user.value?.companyId
-      )
+    // Extract applications array from response correctly
+    let applicationsData: JobApplication[] = []
+    let totalFromAPI = 0
+    
+    // Handle different response structures
+    if (response && typeof response === 'object') {
+      // Structure: { status, message, data: { data: [...], pagination: {...} } }
+      if (response.data && response.data.data && Array.isArray(response.data.data)) {
+        applicationsData = response.data.data
+        totalFromAPI = response.data.pagination?.total || applicationsData.length
+      }
+      // Structure: { data: [...], pagination: {...} }
+      else if (response.data && Array.isArray(response.data)) {
+        applicationsData = response.data
+        totalFromAPI = response.pagination?.total || applicationsData.length
+      }
+      // Structure: directly array in response
+      else if (Array.isArray(response)) {
+        applicationsData = response
+        totalFromAPI = applicationsData.length
+      }
+      // Structure: response itself is the data array
+      else if (Array.isArray(response.data)) {
+        applicationsData = response.data
+        totalFromAPI = applicationsData.length
+      }
+    }
+    
+    // Define status groups for calculation
+    const processingStatuses = ['pending', 'reviewed', 'shortlisted', 'interviewed']
+    const acceptedStatuses = ['hired', 'offered', 'accepted']
+    
+    // Calculate stats from applications data
+    const totalApplications = totalFromAPI || applicationsData.length
+    
+    // Count processing applications
+    const processingApplications = applicationsData.filter((app: JobApplication) => 
+      processingStatuses.includes(app.status?.toLowerCase() || '')
+    ).length
+    
+    // Count accepted applications
+    const acceptedApplications = applicationsData.filter((app: JobApplication) => 
+      acceptedStatuses.includes(app.status?.toLowerCase() || '')
+    ).length
+    
+    // Count rejected applications
+    const rejectedApplications = applicationsData.filter((app: JobApplication) => 
+      app.status?.toLowerCase() === 'rejected'
+    ).length
+    
+    // Update stats
+    stats.value.totalApplications = totalApplications
+    stats.value.processingApplications = processingApplications
+    stats.value.acceptedApplications = acceptedApplications
+    stats.value.rejectedApplications = rejectedApplications
+    
+    console.log('Stats calculated from API:', {
+      totalApplications,
+      processingApplications,
+      acceptedApplications,
+      rejectedApplications,
+      rawDataLength: applicationsData.length
+    })
+    
+    // Map recent applications for display
+    recentApplications.value = applicationsData.slice(0, 5).map((app: JobApplication) => {
+      // Get applicant name - handle various possible structures
+      let applicantName = 'Unknown Candidate'
+      let applicantEmail = 'email@example.com'
       
-      recentApplications.value = companyApplications.slice(0, 5).map((app: any) => ({
+      if (app.user) {
+        // If user object exists with name property
+        if (typeof app.user === 'object') {
+          applicantName = (app.user as any).name || (app.user as any).username || `Candidate ${app.userId?.slice(0, 8)}`
+          applicantEmail = (app.user as any).email || 'email@example.com'
+        }
+      } else if (app.userId) {
+        // Use userId as fallback
+        applicantName = `Candidate ${app.userId.slice(0, 8)}`
+      }
+      
+      return {
         id: app.id,
-        applicantName: app.user?.name || 'Unknown',
-        applicantEmail: app.user?.email || 'unknown@email.com',
+        applicantName: applicantName,
+        applicantEmail: applicantEmail,
         jobTitle: app.job?.title || 'Unknown Position',
         appliedDate: formatTimeAgo(app.createdAt),
         status: app.status || 'pending'
-      }))
-    } else {
-      recentApplications.value = []
-    }
+      }
+    })
     
   } catch (err) {
-    console.error('Error fetching recent applications:', err)
+    console.error('Error fetching and calculating stats:', err)
+    // Set default values on error
+    stats.value.totalApplications = 0
+    stats.value.processingApplications = 0
+    stats.value.acceptedApplications = 0
+    stats.value.rejectedApplications = 0
     recentApplications.value = []
   }
 }
 
-// Fetch unread messages count
+// Fetch unread messages count (placeholder)
 const fetchUnreadMessages = async (): Promise<void> => {
   try {
-    unreadMessages.value = 3
+    unreadMessages.value = 0
   } catch (err) {
     console.error('Error fetching unread messages:', err)
     unreadMessages.value = 0
   }
-}
-
-// Format time ago
-const formatTimeAgo = (timestamp: number): string => {
-  const now = Math.floor(Date.now() / 1000)
-  const diff = now - timestamp
-  
-  if (diff < 60) return 'just now'
-  if (diff < 3600) return `${Math.floor(diff / 60)} mins ago`
-  if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`
-  if (diff < 604800) return `${Math.floor(diff / 86400)} days ago`
-  return new Date(timestamp * 1000).toLocaleDateString()
 }
 
 // Fetch all dashboard data
@@ -456,8 +508,7 @@ const fetchDashboardData = async (): Promise<void> => {
   try {
     await Promise.all([
       fetchJobStats(),
-      fetchApplicationStats(),
-      fetchRecentApplications(),
+      fetchAndCalculateStats(),
       fetchUnreadMessages()
     ])
     

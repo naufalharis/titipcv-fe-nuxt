@@ -15,7 +15,7 @@
 
     <!-- Navigation -->
     <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-      <!-- Filter menu berdasarkan auth status dan role -->
+      <!-- Filter menu berdasarkan maintenance mode, auth status dan role -->
       <template v-for="item in filteredNavigation" :key="item.name">
         <div
           @click="navigateToPage(item.path)"
@@ -35,9 +35,9 @@
         </div>
       </template>
 
-      <!-- Logout button (hanya tampil jika sudah login) -->
+      <!-- Logout button (hanya tampil jika maintenance mode OFF dan sudah login) -->
       <button 
-        v-if="isAuthenticated"
+        v-if="!isMaintenanceMode && isAuthenticated"
         @click="handleLogout"
         class="w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
       >
@@ -48,8 +48,8 @@
       </button>
     </nav>
 
-    <!-- Footer Profile (hanya tampil jika sudah login) -->
-    <div v-if="isAuthenticated && user" class="p-4 border-t border-slate-200 dark:border-slate-800">
+    <!-- Footer Profile (hanya tampil jika maintenance mode OFF dan sudah login) -->
+    <div v-if="!isMaintenanceMode && isAuthenticated && user" class="p-4 border-t border-slate-200 dark:border-slate-800">
       <div class="flex items-center">
         <img 
           class="h-9 w-9 rounded-full bg-slate-200 object-cover" 
@@ -74,9 +74,10 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, computed } from 'vue'
+import { defineProps, defineEmits, computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '~/composables/useAuth'
+import { useSiteSettings } from '~/composables/useSiteSettings'
 
 const props = defineProps({
   isOpen: { type: Boolean, default: false }
@@ -87,6 +88,21 @@ const emit = defineEmits(['close'])
 const route = useRoute()
 const router = useRouter()
 const { isAuthenticated, user, logout } = useAuth()
+const { getSiteSettings } = useSiteSettings()
+
+// Maintenance mode state
+const isMaintenanceMode = ref(false)
+let maintenanceCheckInterval = null
+
+// Check maintenance status
+const checkMaintenanceStatus = async () => {
+  try {
+    const settings = await getSiteSettings()
+    isMaintenanceMode.value = settings?.maintenanceMode || false
+  } catch (err) {
+    console.error('Error checking maintenance status:', err)
+  }
+}
 
 // User info
 const userName = computed(() => {
@@ -142,10 +158,13 @@ const getMenuByRole = () => {
     return [
       homeMenu,
       { name: 'Dashboard', path: '/recruiter/dashboard', icon: IconDashboard },
-      { name: 'Manage Jobs', path: '/recruiter/jobs', icon: IconJobs },
-      { name: 'Post Job', path: '/recruiter/job-create', icon: IconPostJob },
-      { name: 'Shared Profiles', path: '/recruiter/shared-profiles', icon: IconShare },
       { name: 'Company Profile', path: '/recruiter/company-profile', icon: IconCompany },
+      { name: 'Post Job', path: '/recruiter/job-create', icon: IconPostJob },
+      { name: 'Manage Jobs', path: '/recruiter/jobs', icon: IconJobs },
+      { name: 'Applications', path: '/recruiter/applications', icon: IconApplications },
+      { name: 'Shared Profiles', path: '/recruiter/shared-profiles', icon: IconShare },
+      { name: 'Job Fair', path: '/recruiter/job-fair', icon: IconJobFair },
+      // { name: 'Inbox', path: '/recruiter/inbox', icon: IconInbox},
     ]
   }
   
@@ -154,6 +173,7 @@ const getMenuByRole = () => {
       homeMenu,
       { name: 'Dashboard', path: '/jobseeker/dashboard', icon: IconDashboardJobseeker },
       { name: 'My Profile', path: '/jobseeker/profile', icon: IconProfile },
+      { name: 'Job Fair', path: '/jobseeker/job-fair', icon: IconJobFair },
       { name: 'My Applications', path: '/jobseeker/applications', icon: IconApplications },
       { name: 'Saved Jobs', path: '/jobseeker/saved-jobs', icon: IconBookmark },
     ]
@@ -167,8 +187,24 @@ const getMenuByRole = () => {
   ]
 }
 
-// Filter navigation berdasarkan auth status dan role
+// Filter navigation berdasarkan maintenance mode, auth status dan role
 const filteredNavigation = computed(() => {
+  // JIKA MAINTENANCE MODE AKTIF
+  if (isMaintenanceMode.value) {
+    // Hanya tampilkan menu Login (atau Logout jika sudah login)
+    if (isAuthenticated.value) {
+      // Jika sudah login di mode maintenance, hanya tampilkan Logout (tapi logout button dipisah)
+      // Maka navigation kosong
+      return []
+    } else {
+      // Jika belum login, tampilkan Login saja
+      return [
+        { name: 'Login', path: '/login', icon: IconLogin }
+      ]
+    }
+  }
+  
+  // JIKA MAINTENANCE MODE OFF (Normal)
   // Jika belum login, tampilkan menu public
   if (!isAuthenticated.value) {
     return [
@@ -185,9 +221,10 @@ const filteredNavigation = computed(() => {
 const handleLogout = async () => {
   await logout()
   router.push('/login')
+  emit('close')
 }
 
-// Ikon
+// Ikon (sama seperti sebelumnya)
 const IconHome = (props) => h('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', 'stroke-width': 1.5 }, [
   h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' })
 ])
@@ -224,6 +261,15 @@ const IconShare = (props) => h('svg', { ...props, xmlns: 'http://www.w3.org/2000
   h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z' })
 ])
 
+const IconJobFair = (props) => h('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', 'stroke-width': 1.5 }, [
+  h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' }),
+  h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M8 12h8M8 16h5' })
+])
+
+const IconInbox = (props) => h('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', 'stroke-width': 1.5 }, [
+  h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' })
+])
+
 const IconCompany = (props) => h('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', 'stroke-width': 1.5 }, [
   h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z' })
 ])
@@ -239,4 +285,17 @@ const IconApplications = (props) => h('svg', { ...props, xmlns: 'http://www.w3.o
 const IconBookmark = (props) => h('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', 'stroke-width': 1.5 }, [
   h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z' })
 ])
+
+// Lifecycle
+onMounted(() => {
+  checkMaintenanceStatus()
+  // Check every 30 seconds
+  maintenanceCheckInterval = setInterval(checkMaintenanceStatus, 30000)
+})
+
+onUnmounted(() => {
+  if (maintenanceCheckInterval) {
+    clearInterval(maintenanceCheckInterval)
+  }
+})
 </script>

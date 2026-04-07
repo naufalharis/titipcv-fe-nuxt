@@ -90,205 +90,268 @@
 
         <!-- Form Content -->
         <form @submit.prevent="handleSubmit" class="p-6">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Company Name -->
-            <div class="lg:col-span-2">
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Company Name <span class="text-rose-500">*</span>
-              </label>
-              <input
-                v-model="companyForm.name"
-                type="text"
-                required
-                class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
-                placeholder="Enter company name"
-              />
-            </div>
+          <!-- Company Information Section -->
+          <div class="mb-8">
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">Company Information</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <!-- Company Name -->
+              <div class="lg:col-span-2">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Company Name <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  v-model="companyForm.name"
+                  type="text"
+                  required
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
+                  placeholder="Enter company name"
+                />
+              </div>
 
-            <!-- About -->
-            <div class="lg:col-span-2">
+              <!-- Industry -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Industry
+                </label>
+                <input
+                  v-model="companyForm.industry"
+                  type="text"
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
+                  placeholder="Financial Technology"
+                />
+              </div>
+
+              <!-- Company Size -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Company Size <span class="text-rose-500">*</span>
+                </label>
+                <select
+                  v-model="companyForm.size"
+                  required
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
+                >
+                  <option value="">Select Size</option>
+                  <option value="1-10">1-10 employees</option>
+                  <option value="11-50">11-50 employees</option>
+                  <option value="51-200">51-200 employees</option>
+                  <option value="201-500">201-500 employees</option>
+                  <option value="501-1000">501-1000 employees</option>
+                  <option value="1000+">1000+ employees</option>
+                </select>
+              </div>
+
+              <!-- Email address -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Email address <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  v-model="companyForm.email"
+                  type="email"
+                  required
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
+                  placeholder="company@example.com"
+                />
+              </div>
+
+              <!-- Phone Number -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Phone Number <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  v-model="companyForm.phone"
+                  type="tel"
+                  required
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
+                  placeholder="+62 812 3456 7890"
+                />
+              </div>
+
+              <!-- Website -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Website
+                </label>
+                <input
+                  v-model="companyForm.website"
+                  type="url"
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
+                  placeholder="https://example.com"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Person In Charge (PIC) Section -->
+          <div class="mb-8 pt-8 border-t border-slate-200 dark:border-slate-800">
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">Person In Charge (PIC)</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <!-- PIC Name -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Name <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  v-model="companyForm.pic_name"
+                  type="text"
+                  required
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
+                  placeholder="Full name"
+                />
+              </div>
+
+              <!-- PIC Position -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Position <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  v-model="companyForm.pic_position"
+                  type="text"
+                  required
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
+                  placeholder="HR Manager"
+                />
+              </div>
+
+              <!-- PIC Email -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Email address <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  v-model="companyForm.pic_email"
+                  type="email"
+                  required
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
+                  placeholder="pic@company.com"
+                />
+              </div>
+
+              <!-- PIC WhatsApp -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  WhatsApp Number <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  v-model="companyForm.pic_whatsapp"
+                  type="tel"
+                  required
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
+                  placeholder="+62 812 3456 7890"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Location Section -->
+          <div class="mb-8 pt-8 border-t border-slate-200 dark:border-slate-800">
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">Location</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <!-- Country -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Negara
+                </label>
+                <input
+                  type="text"
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
+                  placeholder="Indonesia"
+                />
+              </div>
+
+              <!-- City -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Kota
+                </label>
+                <input
+                  v-model="companyForm.city"
+                  type="text"
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
+                  placeholder="Jakarta"
+                />
+              </div>
+
+              <!-- Province -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Provinsi
+                </label>
+                <input
+                  v-model="companyForm.province"
+                  type="text"
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
+                  placeholder="DKI Jakarta"
+                />
+              </div>
+
+              <!-- District -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Kecamatan
+                </label>
+                <input
+                  v-model="companyForm.district"
+                  type="text"
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
+                  placeholder="Central Jakarta"
+                />
+              </div>
+
+              <!-- Address -->
+              <div class="lg:col-span-2">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Alamat
+                </label>
+                <input
+                  v-model="companyForm.address"
+                  type="text"
+                  class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
+                  placeholder="Street address"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- About Company Section -->
+          <div class="mb-8 pt-8 border-t border-slate-200 dark:border-slate-800">
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">About Company</h3>
+            <div>
               <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 About Company
               </label>
               <textarea
                 v-model="companyForm.about"
                 rows="4"
-                class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
+                maxlength="1000"
+                class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors resize-none"
                 placeholder="Tell us about your company..."
               ></textarea>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                {{ companyForm.about?.length || 0 }}/1000 characters
+              </p>
             </div>
+          </div>
 
-            <!-- Industry & Size -->
+          <!-- Company Introduction Video Section -->
+          <div class="mb-8 pt-8 border-t border-slate-200 dark:border-slate-800">
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">Company Introduction Video</h3>
             <div>
               <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Industry
+                Company Video URL
               </label>
               <input
-                v-model="companyForm.industry"
-                type="text"
-                class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
-                placeholder="e.g., Technology, Finance, Healthcare"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Company Size
-              </label>
-              <select
-                v-model="companyForm.size"
-                class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
-              >
-                <option value="">Select Size</option>
-                <option value="1-10">1-10 employees</option>
-                <option value="11-50">11-50 employees</option>
-                <option value="51-200">51-200 employees</option>
-                <option value="201-500">201-500 employees</option>
-                <option value="501-1000">501-1000 employees</option>
-                <option value="1000+">1000+ employees</option>
-              </select>
-            </div>
-
-            <!-- Website & Email -->
-            <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Website
-              </label>
-              <input
-                v-model="companyForm.website"
+                v-model="companyForm.videoUrl"
                 type="url"
                 class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
-                placeholder="https://example.com"
+                placeholder="https://www.youtube.com/watch?v=..."
               />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Company Email
-              </label>
-              <input
-                v-model="companyForm.email"
-                type="email"
-                class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
-                placeholder="company@example.com"
-              />
-            </div>
-
-            <!-- Phone & Address -->
-            <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Phone Number
-              </label>
-              <input
-                v-model="companyForm.phone"
-                type="tel"
-                class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
-                placeholder="+62 812 3456 7890"
-              />
-            </div>
-
-            <div class="lg:col-span-2">
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Address
-              </label>
-              <input
-                v-model="companyForm.address"
-                type="text"
-                class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
-                placeholder="Street address"
-              />
-            </div>
-
-            <!-- City, Province, District -->
-            <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                City
-              </label>
-              <input
-                v-model="companyForm.city"
-                type="text"
-                class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
-                placeholder="Jakarta"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Province
-              </label>
-              <input
-                v-model="companyForm.province"
-                type="text"
-                class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
-                placeholder="DKI Jakarta"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                District
-              </label>
-              <input
-                v-model="companyForm.district"
-                type="text"
-                class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
-                placeholder="Central Jakarta"
-              />
-            </div>
-
-            <!-- PIC Information -->
-            <div class="lg:col-span-2">
-              <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 pt-4 border-t border-slate-200 dark:border-slate-800">
-                Person In Charge (PIC) Information
-              </h3>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                PIC Name
-              </label>
-              <input
-                v-model="companyForm.pic_name"
-                type="text"
-                class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
-                placeholder="Full name"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                PIC Position
-              </label>
-              <input
-                v-model="companyForm.pic_position"
-                type="text"
-                class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
-                placeholder="HR Manager"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                PIC WhatsApp
-              </label>
-              <input
-                v-model="companyForm.pic_whatsapp"
-                type="tel"
-                class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
-                placeholder="+62 812 3456 7890"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                PIC Email
-              </label>
-              <input
-                v-model="companyForm.pic_email"
-                type="email"
-                class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-500 text-slate-900 dark:text-white transition-colors"
-                placeholder="pic@company.com"
-              />
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                Paste a YouTube URL to show an embedded video preview
+              </p>
             </div>
           </div>
 
@@ -622,6 +685,41 @@ const fetchCompanyData = async () => {
 const handleSubmit = async () => {
   if (!companyForm.name.trim()) {
     alert('Company name is required')
+    return
+  }
+
+  if (!companyForm.size) {
+    alert('Company size is required')
+    return
+  }
+
+  if (!companyForm.email.trim()) {
+    alert('Company email is required')
+    return
+  }
+
+  if (!companyForm.phone.trim()) {
+    alert('Company phone number is required')
+    return
+  }
+
+  if (!companyForm.pic_name.trim()) {
+    alert('PIC name is required')
+    return
+  }
+
+  if (!companyForm.pic_position.trim()) {
+    alert('PIC position is required')
+    return
+  }
+
+  if (!companyForm.pic_email.trim()) {
+    alert('PIC email is required')
+    return
+  }
+
+  if (!companyForm.pic_whatsapp.trim()) {
+    alert('PIC WhatsApp number is required')
     return
   }
   
